@@ -78,7 +78,7 @@ std::vector<Song> MainWindow::getTopSongs(SortMode mode, int count) const {
         }
         return heapPtr ? heapPtr->peekTop(count) : std::vector<Song>();
     }
-    else { // Red-Black Tree mode
+    else {
         const RedBlackTree* treePtr = nullptr;
         switch (mode) {
         case SortMode::POPULARITY: treePtr = popularityTree; break;
@@ -106,10 +106,8 @@ void MainWindow::displaySongs(SortMode mode, bool reset) {
     if (reset)
         currentDisplayCount = kInitialBatch;
 
-    // --- Get the songs from either Heaps or Red-Black Tree ---
     std::vector<Song> rows = getTopSongs(mode, currentDisplayCount);
 
-    // --- Handle empty or invalid data ---
     if (rows.empty()) {
         ui->tableSongs->clear();
         ui->tableSongs->setRowCount(0);
