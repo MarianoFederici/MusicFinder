@@ -31,33 +31,43 @@ double RedBlackTree::getKey(const Song& s) const {
 
 
 void RedBlackTree::rotateLeft(RBNode* x) {
-    RBNode* y = x->right;
-    x->right = y->left;
-    if (y->left) y->left->parent = x;
-    y->parent = x->parent;
-    if (!x->parent)
-        root = y;
-    else if (x == x->parent->left)
-        x->parent->left = y;
-    else
-        x->parent->right = y;
-    y->left = x;
-    x->parent = y;
+    RBNode* NewX = x->right;
+    x->right = NewX->left;
+    if(NewX->left){ //If x had a grandchild, make it x's child.
+        NewX->left->parent = x;
+    }
+    NewX->parent = x->parent;
+
+    //Cases
+    if(!x->parent){ //Case 1: x is the root.
+        root = NewX;
+    }else if (x == x->parent->left){ //Case 2: x is a left child.
+        x->parent->left = NewX;
+    }else{ //Case 3: x is a right child.
+        x->parent->right = NewX;
+    }
+    NewX->left = x;
+    x->parent = NewX;
 }
 
 void RedBlackTree::rotateRight(RBNode* y) {
-    RBNode* x = y->left;
-    y->left = x->right;
-    if (x->right) x->right->parent = y;
-    x->parent = y->parent;
-    if (!y->parent)
-        root = x;
-    else if (y == y->parent->left)
-        y->parent->left = x;
-    else
-        y->parent->right = x;
-    x->right = y;
-    y->parent = x;
+    RBNode* NewY = y->left;
+    y->left = NewY->right;
+    if(NewY->right){ //If y had a grandchild, make it y's child.
+        NewY->right->parent = y;
+    }
+    NewY->parent = y->parent;
+
+    //Cases
+    if(!y->parent){ //Case 1: y is the root.
+        root = NewY;
+    }else if(y == y->parent->left){ //Case 2: y is a left child.
+        y->parent->left = NewY;
+    }else{ //Case 3: y is a right child.
+        y->parent->right = NewY;
+    }
+    NewY->right = y;
+    y->parent = NewY;
 }
 
 
@@ -89,18 +99,16 @@ void RedBlackTree::insert(const Song& s) {
         if (Node->parent == grand->left) {
             RBNode* uncle = grand->right;
             if (uncle && uncle->color == RED) {
-                // case 1: uncle is red
                 Node->parent->color = BLACK;
                 uncle->color = BLACK;
                 grand->color = RED;
                 Node = grand;
-            } else {
+            } else {//Left-Right.
                 if (Node == Node->parent->right) {
-                    // case 2: left-right
                     Node = Node->parent;
                     rotateLeft(Node);
                 }
-                // case 3: left-left
+                //Left-left.
                 Node->parent->color = BLACK;
                 grand->color = RED;
                 rotateRight(grand);
@@ -136,7 +144,6 @@ void RedBlackTree::inorderHelper(RBNode* node, vector<Song>& out) const {
 vector<Song> RedBlackTree::getTopN(int n) const {
     vector<Song> sorted;
     inorderHelper(root, sorted);
-    // Sort by key descending
     sort(sorted.begin(), sorted.end(), [this](const Song& a, const Song& b) {
         return getKey(a) > getKey(b);
     });
